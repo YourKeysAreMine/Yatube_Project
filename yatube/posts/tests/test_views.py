@@ -3,7 +3,7 @@ import tempfile
 
 from django import forms
 from django.contrib.auth import get_user_model
-from django.test import TestCase, override_settings
+from django.test import TestCase, override_settings, Client
 from django.urls import reverse
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -180,28 +180,6 @@ class PostPagesTest(TestCase):
                 form_field = response.context["page_obj"]
                 self.assertNotIn(expected, form_field)
 
-    def test_profile_follow(self):
-        """Авторизованный пользователь может подписываться
-        на других пользователей и удалять их из подписок"""
-        response = self.authorized_client.get(
-            reverse('posts:profile_follow',
-                    kwargs={'username': PostPagesTest.user})
-        )
-        self.assertRedirects(
-            response, reverse('posts:follow_index')
-        )
-        self.assertTrue(Follow.objects.filter(
-            author=PostPagesTest.user).exists())
-        response = self.authorized_client.get(
-            reverse('posts:profile_unfollow',
-                    kwargs={'username': PostPagesTest.user})
-        )
-        self.assertRedirects(
-            response, reverse('posts:follow_index')
-        )
-        self.assertFalse(Follow.objects.filter(
-            author=PostPagesTest.user).exists())
-
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class PostImageTest(TestCase):
@@ -292,7 +270,11 @@ class PostImageTest(TestCase):
 
     def test_follow_index_subscribed_users(self):
         """Проверяем, что новая запись пользователя появляется
-        в ленте тех, кто на него подписан"""
+        в ленте тех, кто на него подписан
+        """
+        user = User.objects.create_user(username="Test_user")
+        self.authorized_client = Client()
+        self.authorized_client.force_login(user)
         self.authorized_client.get(
             reverse('posts:profile_follow',
                     kwargs={'username': PostImageTest.user})
@@ -305,3 +287,28 @@ class PostImageTest(TestCase):
         в ленте тех, кто на него подписан"""
         response = self.authorized_client.get(reverse("posts:follow_index"))
         self.assertEqual(len(response.context['page_obj']), 0)
+
+    def test_profile_follow(self):
+        """Авторизованный пользователь может подписываться на других
+        пользователей и удалять их из подписок"""
+        user = User.objects.create_user(username="Test_user")
+        self.authorized_client = Client()
+        self.authorized_client.force_login(user)
+        response = self.authorized_client.get(
+            reverse('posts:profile_follow',
+                    kwargs={'username': PostImageTest.user})
+        )
+        self.assertRedirects(
+            response, reverse('posts:follow_index')
+        )
+        self.assertTrue(Follow.objects.filter(
+            author=PostImageTest.user).exists())
+        response = self.authorized_client.get(
+            reverse('posts:profile_unfollow',
+                    kwargs={'username': PostImageTest.user})
+        )
+        self.assertRedirects(
+            response, reverse('posts:follow_index')
+        )
+        self.assertFalse(Follow.objects.filter(
+            author=PostImageTest.user).exists())
