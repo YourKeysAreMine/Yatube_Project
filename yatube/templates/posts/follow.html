@@ -1,0 +1,22 @@
+{% extends 'base.html'%}
+
+{% block title %} Подписки на авторов {% endblock %}
+
+{% block content %}
+      <div class="container">
+        <h1> Последние посты избранных авторов </h1>
+        {% include 'posts/includes/switcher.html'%}
+        <article>
+          {% for post in page_obj %}
+            {% include 'includes/article.html'%}
+          <a href="{% url 'posts:post_detail' post.id %}">Подробная информация</a> <br>
+          {% if post.group %}
+          <a href="{% url 'posts:group_list' post.group.slug %}">Все записи группы: "{{ post.group.title }}"</a>
+          {% endif %}
+          {% if not forloop.last %}<hr>{% endif %}
+        {% endfor %}
+        {% include 'posts/includes/paginator.html' %}
+        </article>
+        <hr>
+      </div>
+{% endblock %}
