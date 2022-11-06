@@ -15,7 +15,8 @@ def get_pagination(request, quaryset):
 
 
 def index(request):
-    page_obj = get_pagination(request, Post.objects.all())
+    page_obj = get_pagination(request,
+                              Post.objects.select_related('group').all())
     return render(request, 'posts/index.html', {'page_obj': page_obj})
 
 
@@ -34,8 +35,7 @@ def profile(request, username):
     requested_author = get_object_or_404(User, username=username)
     posts = requested_author.posts.all()
     page_obj = get_pagination(request, posts)
-    quaryset = Follow.objects.filter(user=request.user,
-                                     author=requested_author)
+    quaryset = Follow.objects.filter(author=requested_author)
     quaryset.exists()
     context = {
         'page_obj': page_obj,
