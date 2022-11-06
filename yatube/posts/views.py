@@ -15,8 +15,7 @@ def get_pagination(request, quaryset):
 
 
 def index(request):
-    page_obj = get_pagination(request,
-                              Post.objects.select_related('group').all())
+    page_obj = get_pagination(request, Post.objects.all())
     return render(request, 'posts/index.html', {'page_obj': page_obj})
 
 
