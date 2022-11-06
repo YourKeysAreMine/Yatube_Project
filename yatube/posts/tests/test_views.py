@@ -260,10 +260,10 @@ class PostImageTest(TestCase):
     def test_cache(self):
         """Проверяем, что кэш работает"""
         response_1 = self.client.get(reverse("posts:index")).content
-        Post.objects.all().delete
+        Post.objects.all().delete()
         response_2 = self.client.get(reverse("posts:index")).content
         self.assertEqual(response_1, response_2)
-        Post.objects.all().delete
+        Post.objects.all().delete()
         cache.clear()
         response_3 = self.client.get(reverse("posts:index")).content
         self.assertNotEqual(response_1, response_3)
@@ -280,7 +280,13 @@ class PostImageTest(TestCase):
                     kwargs={'username': PostImageTest.user})
         )
         response = self.authorized_client.get(reverse("posts:follow_index"))
-        self.assertEqual(len(response.context['page_obj']), 1)
+        self.assertEqual(len(response.context['page_obj']),
+                         Post.objects.all().count())
+        self.assertTrue(
+            Follow.objects.filter(
+                user=user,
+                author=PostImageTest.user).exists()
+        )
 
     def test_follow_index_unsubscribed_users(self):
         """Проверяем, что новая запись пользователя не появляется

@@ -12,6 +12,10 @@ class Group(models.Model):
                             )
     description = models.TextField(verbose_name='Описание группы')
 
+    class Meta:
+        verbose_name = 'Группы'
+        verbose_name_plural = 'Группы'
+
     def __str__(self) -> str:
         return self.title
 
@@ -72,6 +76,11 @@ class Comment(models.Model):
         verbose_name='Дата создания комментария',
     )
 
+    class Meta:
+        ordering = ['-created']
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -86,5 +95,13 @@ class Follow(models.Model):
         null=True,
         on_delete=models.CASCADE,
         related_name='following',
-        verbose_name='Пользователь',
+        verbose_name='Автор',
     )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'author'],
+                                    name='unique follow')
+        ]

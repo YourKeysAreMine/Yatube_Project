@@ -1,5 +1,3 @@
-from itertools import chain
-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
@@ -17,7 +15,8 @@ def get_pagination(request, quaryset):
 
 
 def index(request):
-    page_obj = get_pagination(request, Post.objects.all())
+    page_obj = get_pagination(request,
+                              Post.objects.select_related('group').all())
     return render(request, 'posts/index.html', {'page_obj': page_obj})
 
 
@@ -36,15 +35,13 @@ def profile(request, username):
     requested_author = get_object_or_404(User, username=username)
     posts = requested_author.posts.all()
     page_obj = get_pagination(request, posts)
-    quaryset = Follow.objects.filter(author=requested_author)
-    if quaryset.exists and len(quaryset) > 0:
-        following = True
-    else:
-        following = False
+    quaryset = Follow.objects.filter(user=request.user,
+                                     author=requested_author)
+    quaryset.exists()
     context = {
         'page_obj': page_obj,
         'author': requested_author,
-        'following': following,
+        'following': quaryset.exists(),
     }
     return render(request, 'posts/profile.html', context)
 
@@ -114,10 +111,7 @@ def add_comment(request, post_id):
 def follow_index(request):
     subscriptions = Follow.objects.filter(
         user=request.user).values_list('author_id', flat=True)
-    result_quary = []
-    for subscription in subscriptions:
-        quaryset = Post.objects.filter(author_id=subscription)
-        result_quary = list(chain(result_quary, quaryset))
+    result_quary = Post.objects.filter(author_id__in=subscriptions)
     page_obj = get_pagination(request, result_quary)
     return render(request, 'posts/follow.html', {'page_obj': page_obj})
 
@@ -125,9 +119,8 @@ def follow_index(request):
 @login_required
 def profile_follow(request, username):
     author = get_object_or_404(User, username=username)
-    if author != request.user and not Follow.objects.filter(
-            user=request.user, author=author).exists():
-        Follow.objects.create(user=request.user, author=author)
+    if author != request.user:
+        Follow.objects.get_or_create(user=request.user, author=author)
     return redirect('posts:follow_index')
 
 
@@ -135,5 +128,5 @@ def profile_follow(request, username):
 def profile_unfollow(request, username):
     author = get_object_or_404(User, username=username)
     if author != request.user:
-        Follow.objects.get(user=request.user, author=author).delete()
+        get_object_or_404(Follow, user=request.user, author=author).delete()
     return redirect('posts:follow_index')
