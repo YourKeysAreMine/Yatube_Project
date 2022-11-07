@@ -35,13 +35,21 @@ def profile(request, username):
     requested_author = get_object_or_404(User, username=username)
     posts = requested_author.posts.all()
     page_obj = get_pagination(request, posts)
-    quaryset = Follow.objects.filter(author=requested_author)
-    quaryset.exists()
-    context = {
-        'page_obj': page_obj,
-        'author': requested_author,
-        'following': quaryset.exists(),
-    }
+    if request.user.is_authenticated:
+        quaryset = Follow.objects.filter(
+            user=request.user,
+            author=requested_author,
+        )
+        context = {
+            'page_obj': page_obj,
+            'author': requested_author,
+            'following': quaryset.exists(),
+        }
+    else:
+        context = {
+            'page_obj': page_obj,
+            'author': requested_author,
+        }
     return render(request, 'posts/profile.html', context)
 
 
