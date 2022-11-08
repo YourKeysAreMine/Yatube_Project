@@ -44,11 +44,7 @@ def profile(request, username):
             user=request.user,
             author=requested_author,
         )
-        context = {
-            'page_obj': page_obj,
-            'author': requested_author,
-            'following': quaryset.exists(),
-        }
+        context['following'] = quaryset.exists()
     return render(request, 'posts/profile.html', context)
 
 
