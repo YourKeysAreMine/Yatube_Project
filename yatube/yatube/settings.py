@@ -30,6 +30,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     '[::1]',
     'testserver',
+    'www.yourkeysaremine.pythonanywhere.com',
+    'yourkeysaremine.pythonanywhere.com',
 ]
 
 
@@ -142,7 +144,11 @@ LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'posts:index'
 # Временно отключено! Если включить, не отображается logout/!
 # LOGOUT_REDIRECT_URL = 'posts:index'
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
 MEDIA_URL = '/media/'

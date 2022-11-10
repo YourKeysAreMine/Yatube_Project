@@ -40,7 +40,7 @@
       <p>{{post.text}}</p>
       {% if user == post.author %}
       <a class="btn btn-primary" href="{% url 'posts:post_edit' post.id %}">
-        редактировать запись
+        Редактировать запись
       </a>
       {% endif %} 
       {% if user.is_authenticated %}

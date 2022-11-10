@@ -3,29 +3,19 @@
 {% block content %}
 {% comment %} Колонки с отступом сверху и снизу {% endcomment %}
 <div class="row">
-  <h1>Вот что я умею</h1>
-  {% comment %}
-    Боковой блок со списком технологий 
-    Займет всю ширину блока на мобильном
-    и 25% при размерах экрана ≥768px
-  {% endcomment %}
-  <aside class="col-12 col-md-3">
-    <ul class="list-group list-group-flush">
-      <li class="list-group-item">
-        Python
-      </li>
-      <li class="list-group-item">
-        Django
-      </li>
-    </ul>
-  </aside>
-  {% comment %}
-    Статья  
-    Займет всю ширину блока на мобильном
-    и 75% при размерах экрана ≥768px
-  {% endcomment %}
+  <h1>Список технологий:</h1>
   <article class="col-12 col-md-9">
-    <p>Текст страницы "Технологии"</p>
+    <p class="text-break">Автору этого сайта скромность не позволяет сказать о том, что какой-либо 
+      технологией он "владеет". Надеюсь, в ближайшем будущем на этой странице, или на какой-то другой,
+      или в резюме, например, появится длинный перечень технологий, умений и навыков в сфере айти.
+      Тем не менее, вот краткий список того, что я умею:
+    </p>
+    <p> Язык программирования:
+      <a href="https://www.python.org/"> Python 3.7.9</a>
+    </p>
+    <p> Фреймворк:
+      <a href="https://www.djangoproject.com/"> Django 2.2.19</a>
+    </p>
   </article>
 </div>
-{% endblock %} 
+{% endblock %}
